@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<WebDynpro xmlns="http://www.sap.com/wd/webdynpro">
+  <View name="OrderOverviewView">
+    <Title>SAPUI5 App</Title>
+    <!-- Search Section: Represented by a FlowLayout to arrange input and button horizontally -->
+    <FlowLayout id="searchLayout" wrap="false">
+      <InputField id="searchInput" value="{/SearchCriteria/SearchText}" width="80%" tooltip="Search" />
+      <Button id="goButton" text="Go" onAction="onGoSearch" width="20%" />
+    </FlowLayout>
+
+    <!-- Filter Section: Using FormContainer for the title "Filter" and FormElement for the label/dropdown pair -->
+    <FormContainer id="filterContainer" title="Filter">
+      <FormElement id="statusFilterElement" label="Status">
+        <DropDownByKey id="statusDropDown" selectedKey="{/FilterCriteria/Status}"
+                       displayAttrib="StatusDescription" valueHelpNode="StatusOptions"
+                       onSelect="onStatusFilter" width="100%"/>
+      </FormElement>
+    </FormContainer>
+
+    <!-- Table Section -->
+    <Table id="ordersTable" dataSource="{/OrderList}" visibleRowCount="4" width="100%">
+      <Columns>
+        <Column id="orderIdColumn" width="25%">
+          <TextView text="Order ID" />
+          <TextView text="{OrderID}" design="Standard" />
+        </Column>
+        <Column id="productColumn" width="25%">
+          <TextView text="Product" />
+          <TextView text="{Product}" design="Standard" />
+        </Column>
+        <Column id="statusColumn" width="25%">
+          <TextView text="Status" />
+          <TextView text="{Status}" design="Standard" />
+        </Column>
+        <Column id="amountColumn" width="25%" hAlign="Right">
+          <TextView text="Amount" hAlign="Right" />
+          <TextView text="{Amount}" design="Standard" hAlign="Right" />
+        </Column>
+      </Columns>
+    </Table>
+  </View>
+  <Controller name="OrderOverviewViewController">
+    <Context>
+      <Node name="SearchCriteria" type="Single" cardinality="1..1">
+        <Attribute name="SearchText" type="String" />
+      </Node>
+      <Node name="FilterCriteria" type="Single" cardinality="1..1">
+        <Attribute name="Status" type="String" />
+      </Node>
+      <Node name="StatusOptions" type="Multiple" cardinality="0..n">
+        <Attribute name="StatusKey" type="String" />
+        <Attribute name="StatusDescription" type="String" />
+      </Node>
+      <Node name="OrderList" type="Multiple" cardinality="0..n">
+        <Attribute name="OrderID" type="String" />
+        <Attribute name="Product" type="String" />
+        <Attribute name="Status" type="String" />
+        <Attribute name="Amount" type="String" />
+      </Node>
+    </Context>
+    <Methods>
+      <Method name="onGoSearch">
+        <Documentation>
+          Handle the search action.
+          Typically, this would read the search input from context and filter the order list.
+        </Documentation>
+        <Parameters />
+        <Source>
+          DATA: lv_search_text TYPE string.
+          lv_search_text = wd_context->get_child_node( 'SearchCriteria' )->get_attribute( 'SearchText' ).
+          " Call backend service to filter data based on lv_search_text.
+          " Example: wd_this->apply_filter( iv_search_text = lv_search_text ).
+        </Source>
+      </Method>
+      <Method name="onStatusFilter">
+        <Documentation>
+          Handle the status filter selection.
+          Typically, this would read the selected status from context and filter the order list.
+        </Documentation>
+        <Parameters />
+        <Source>
+          DATA: lv_selected_status TYPE string.
+          lv_selected_status = wd_context->get_child_node( 'FilterCriteria' )->get_attribute( 'Status' ).
+          " Call backend service to filter data based on lv_selected_status.
+          " Example: wd_this->apply_filter( iv_status = lv_selected_status ).
+        </Source>
+      </Method>
+      <Method name="wdDoInit">
+        <Documentation>
+          Initialization method for the view.
+          Used to populate initial data for dropdowns and table.
+        </Documentation>
+        <Parameters />
+        <Source>
+          " Populate StatusOptions for DropDownByKey
+          DATA: lo_node_status_options TYPE REF TO if_wd_context_node,
+                lo_element_status      TYPE REF TO if_wd_context_element.
+
+          lo_node_status_options = wd_context->get_child_node( 'StatusOptions' ).
+
+          " Add 'Status' as the initial displayed value for the dropdown, matching the screenshot
+          lo_element_status = lo_node_status_options->create_element( ).
+          lo_element_status->set_attribute( name = 'StatusKey' value = 'INITIAL' ).
+          lo_element_status->set_attribute( name = 'StatusDescription' value = 'Status' ).
+          lo_node_status_options->add_element( lo_element_status ).
+
+          lo_element_status = lo_node_status_options->create_element( ).
+          lo_element_status->set_attribute( name = 'StatusKey' value = 'IN_PROCESS' ).
+          lo_element_status->set_attribute( name = 'StatusDescription' value = 'In Process' ).
+          lo_node_status_options->add_element( lo_element_status ).
+
+          lo_element_status = lo_node_status_options->create_element( ).
+          lo_element_status->set_attribute( name = 'StatusKey' value = 'SHIPPED' ).
+          lo_element_status->set_attribute( name = 'StatusDescription' value = 'Shipped' ).
+          lo_node_status_options->add_element( lo_element_status ).
+
+          " Set 'INITIAL' as the default selected value for the dropdown
+          wd_context->get_child_node( 'FilterCriteria' )->set_attribute( name = 'Status' value = 'INITIAL' ).
+
+          " Populate initial OrderList
+          DATA: lo_node_order_list TYPE REF TO if_wd_context_node,
+                lo_element_order   TYPE REF TO if_wd_context_element.
+
+          lo_node_order_list = wd_context->get_child_node( 'OrderList' ).
+
+          lo_element_order = lo_node_order_list->create_element( ).
+          lo_element_order->set_attribute( name = 'OrderID' value = '050' ).
+          lo_element_order->set_attribute( name = 'Product' value = 'Lamp' ).
+          lo_element_order->set_attribute( name = 'Status' value = 'In Process' ).
+          lo_element_order->set_attribute( name = 'Amount' value = '€ 45,00' ).
+          lo_node_order_list->add_element( lo_element_order ).
+
+          lo_element_order = lo_node_order_list->create_element( ).
+          lo_element_order->set_attribute( name = 'OrderID' value = '081' ).
+          lo_element_order->set_attribute( name = 'Product' value = 'Phone' ).
+          lo_element_order->set_attribute( name = 'Status' value = 'Shipped' ).
+          lo_element_order->set_attribute( name = 'Amount' value = '€ 200,00' ).
+          lo_node_order_list->add_element( lo_element_order ).
+
+          lo_element_order = lo_node_order_list->create_element( ).
+          lo_element_order->set_attribute( name = 'OrderID' value = '109' ).
+          lo_element_order->set_attribute( name = 'Product' value = 'Tablet' ).
+          lo_element_order->set_attribute( name = 'Status' value = 'Shipped' ).
+          lo_element_order->set_attribute( name = 'Amount' value = '€ 300,00' ).
+          lo_node_order_list->add_element( lo_element_order ).
+
+          lo_element_order = lo_node_order_list->create_element( ).
+          lo_element_order->set_attribute( name = 'OrderID' value = '123' ).
+          lo_element_order->set_attribute( name = 'Product' value = 'Chair' ).
+          lo_element_order->set_attribute( name = 'Status' value = 'In Process' ).
+          lo_element_order->set_attribute( name = 'Amount' value = '€ 70,00' ).
+          lo_node_order_list->add_element( lo_element_order ).
+        </Source>
+      </Method>
+    </Methods>
+  </Controller>
+</WebDynpro>

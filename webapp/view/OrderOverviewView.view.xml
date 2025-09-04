@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mvc:View xmlns:mvc="sap.ui.core.mvc"
+  xmlns="sap.m"
+  xmlns:layout="sap.ui.layout"
+  xmlns:form="sap.ui.layout.form"
+  xmlns:core="sap.ui.core"
+  xmlns:richtexteditor="sap.ui.richtexteditor"
+  xmlns:viz="sap.viz.ui5"
+  controllerName="preview.app.controller.OrderOverviewView"
+  displayBlock="true">
+  <Page title="OrderOverviewView" enableScrolling="true">
+    <content>
+      <Page id="page_v4s5gz6z" title="OrderOverview">
+        <form:SimpleForm id="simpleform_7driu4w7" editable="true" layout="ResponsiveGridLayout">
+          <Button id="button_efdqpgfu" text="Go" type="Emphasized"/>
+        </form:SimpleForm>
+      </Page>
+    </content>
+  </Page>
+</mvc:View>
